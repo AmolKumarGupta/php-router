@@ -4,6 +4,7 @@ namespace Amol\Router;
 
 use Amol\Router\Contract\Http\RequestInterface;
 use Closure;
+use Exception;
 
 class Router
 {
@@ -15,7 +16,7 @@ class Router
     public function match(string $method, string $route, Closure $callback): Router
     {
         $method = mb_strtoupper($method);
-        $this->routes[$method][$route] = $callback;
+        $this->routes[$route][$method] = $callback;
 
         return $this;
     }
@@ -42,11 +43,44 @@ class Router
 
     public function dispatch(RequestInterface $request): void
     {
+        $component = parse_url($request->getUri());
+
+        if (!isset($component['path'])) {
+            throw new Exception("url path is not found");
+        }
+
+        $routes = $this->matchRoutes($component['path']);
+
+        $fn = $routes[$request->getMethod()] ?? null;
+
+        if (!$fn) {
+            return;
+        }
+
+        $fn();
     }
 
     public function find(string $method, string $routePattern): Closure|null
     {
-        return $this->routes[$method][$routePattern] ?? null;
+        return $this->routes[$routePattern][$method] ?? null;
+    }
+
+    /**
+     * @return array<string, Closure>
+     */
+    private function matchRoutes(string $path): array
+    {
+        $path = rtrim($path, "/");
+
+        foreach ($this->routes as $route => $values) {
+            $route = rtrim($route, "/");
+
+            if ($route === $path) {
+                return $values;
+            }
+        }
+
+        return [];
     }
 
 }

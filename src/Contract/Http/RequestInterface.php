@@ -14,4 +14,6 @@ interface RequestInterface
 
     public function getUri(): string;
 
+    public function getHost(): string;
+
 }
