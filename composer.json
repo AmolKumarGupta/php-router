@@ -1,0 +1,32 @@
+{
+    "name": "amol/router",
+    "description": "A Simple Router without external deps",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Amol\\Router\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=8.0",
+        "ext-json": "*",
+        "ext-mbstring": "*"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.11",
+        "friendsofphp/php-cs-fixer": "^3.59",
+        "pestphp/pest": "^2.34"
+    },
+    "scripts": {
+        "fixes": [
+            "./vendor/bin/php-cs-fixer fix src/",
+            "./vendor/bin/phpstan analyse -c phpstan.neon"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}
