@@ -10,7 +10,7 @@ trait CreateFromGlobals
     {
         return new static(
             $_SERVER['REQUEST_METHOD'],
-            $_SERVER['REQUEST_URI'],
+            $_SERVER['REQUEST_URI'] ?? "/",
             $_SERVER['HTTP_HOST'],
         );
     }

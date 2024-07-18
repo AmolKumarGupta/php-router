@@ -9,11 +9,14 @@ use Exception;
 class Router
 {
     /**
-     * @var array<string, array<string, Closure>>
+     * @var array<string, array<string, Closure|string[]>>
      */
     private array $routes = [];
 
-    public function match(string $method, string $route, Closure $callback): Router
+    /**
+     * @param Closure|string[] $callback
+     */
+    public function match(string $method, string $route, Closure|array $callback): Router
     {
         $method = mb_strtoupper($method);
         $this->routes[$route][$method] = $callback;
@@ -21,22 +24,34 @@ class Router
         return $this;
     }
 
-    public function get(string $route, Closure $callback): Router
+    /**
+     * @param Closure|string[] $callback
+     */
+    public function get(string $route, Closure|array $callback): Router
     {
         return $this->match("get", $route, $callback);
     }
 
-    public function post(string $route, Closure $callback): Router
+    /**
+     * @param Closure|string[] $callback
+     */
+    public function post(string $route, Closure|array $callback): Router
     {
         return $this->match("post", $route, $callback);
     }
 
-    public function put(string $route, Closure $callback): Router
+    /**
+     * @param Closure|string[] $callback
+     */
+    public function put(string $route, Closure|array $callback): Router
     {
         return $this->match("put", $route, $callback);
     }
 
-    public function delete(string $route, Closure $callback): Router
+    /**
+     * @param Closure|string[] $callback
+     */
+    public function delete(string $route, Closure|array $callback): Router
     {
         return $this->match("delete", $route, $callback);
     }
@@ -57,16 +72,31 @@ class Router
             return;
         }
 
+        if (is_array($fn)) {
+            [$className, $methodName] = $fn;
+            $obj = new $className();
+
+            if (!method_exists($obj, $methodName)) {
+                throw new \RuntimeException("Method $methodName does not exist in class $className.");
+            }
+
+            $obj->$methodName();
+            return;
+        }
+
         $fn();
     }
 
-    public function find(string $method, string $routePattern): Closure|null
+    /**
+     * @return string[]
+     */
+    public function find(string $method, string $routePattern): Closure|array|null
     {
         return $this->routes[$routePattern][$method] ?? null;
     }
 
     /**
-     * @return array<string, Closure>
+     * @return array<string, Closure|string[]>
      */
     private function matchRoutes(string $path): array
     {

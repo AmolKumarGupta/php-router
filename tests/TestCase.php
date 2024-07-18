@@ -16,7 +16,7 @@ abstract class TestCase extends BaseTestCase
         $components = parse_url($url);
 
         $_SERVER['HTTP_HOST'] = $components['host'];
-        $_SERVER['REQUEST_URI'] = $components['path'];
+        $_SERVER['REQUEST_URI'] = $components['path'] ?? "/";
         $_SERVER['REQUEST_METHOD'] = $method;
         
         if ( !empty($components['query']) ) {
