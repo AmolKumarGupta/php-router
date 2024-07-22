@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.0.3 - releases
+## 0.1.0 - 2024-07-23
 
 ### Features
  - Add parameter in route
