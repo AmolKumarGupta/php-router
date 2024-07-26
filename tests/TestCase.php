@@ -8,6 +8,8 @@ use PHPUnit\Framework\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
+
+    public mixed $output;
     
     public function mock(string $method, $url)
     {
