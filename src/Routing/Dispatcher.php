@@ -15,8 +15,10 @@ class Dispatcher implements DispatchInterface
      */
     public function dispatch(Router $router, Closure|array $callback): void
     {
+        $parameterData = $router->allParameters();
+
         if (!is_array($callback)) {
-            $callback();
+            $callback(...$parameterData);
             return;
         }
 
@@ -37,7 +39,6 @@ class Dispatcher implements DispatchInterface
         }
 
         $dependences = [];
-        $parameterData = $router->allParameters();
 
         foreach ($parameters as $parameter) {
             $name = $parameter->getName();

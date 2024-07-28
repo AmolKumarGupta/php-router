@@ -6,10 +6,15 @@ use Amol\Router\Contract\Http\RequestInterface;
 use Amol\Router\Contract\Routing\DispatchInterface;
 use Amol\Router\Exception\NoUrlPathException;
 use Amol\Router\Routing\Dispatcher;
+use Amol\Router\Routing\Groups;
 use Amol\Router\Routing\Matcher;
 use Amol\Router\Routing\Parameters;
+use BadMethodCallException;
 use Closure;
 
+/**
+ * @method Router prefix(string $uri) Prefix the given URI with the last prefix
+ */
 class Router
 {
     /**
@@ -21,8 +26,31 @@ class Router
         protected Parameters $parameters = new Parameters(),
         protected Matcher $matcher = new Matcher(),
         protected DispatchInterface $dispatcher = new Dispatcher(),
+        protected Groups $groups = new Groups(),
     ) {
         $this->matcher->setParameter($this->parameters);
+    }
+
+    /**
+     * @param array<string, mixed> $arguments
+     */
+    public function __call(string $name, array $arguments): Router
+    {
+        if ($this->groups->hasAttribute($name)) {
+            $this->groups->record($name, ...$arguments);
+            return $this;
+        }
+
+        $class = Router::class;
+        throw new BadMethodCallException("Call to undefined method $class::$name");
+    }
+
+    public function group(Closure $callback): Router
+    {
+        $this->groups->pushGroupStack();
+        $callback();
+        $this->groups->popGroupStack();
+        return $this;
     }
 
     /**
@@ -31,6 +59,16 @@ class Router
     public function match(string $method, string $route, Closure|array $callback): Router
     {
         $method = mb_strtoupper($method);
+
+        if ($this->groups->hasGroups()) {
+            /**
+             * @var string $method
+             * @var string $route
+             * @var Closure|string[] $callback
+             */
+            [$method, $route, $callback] = $this->groups->handle($method, $route, $callback);
+        }
+
         $this->routes[$route][$method] = $callback;
 
         return $this;
