@@ -3,6 +3,7 @@
 ## 0.2.1 - releases
 
 ### Features
+ - Add prefix to routes
 
 ### Fixes
  - Fix `Too few arguments to function` for named parameters ([#2](https://github.com/AmolKumarGupta/php-router/issues/2))
